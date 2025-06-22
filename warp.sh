@@ -541,5 +541,3 @@ echo -e "${CYAN}Usage Examples:${NC}"
 echo -e "Test with curl: ${WHITE}curl --proxy socks5h://127.0.0.1:40000 https://ipinfo.io${NC}"
 echo -e "Check WARP status: ${WHITE}curl --proxy socks5h://127.0.0.1:40000 https://www.cloudflare.com/cdn-cgi/trace${NC}"
 echo
-echo -e "${GREEN}Setup completed! Your WARP SOCKS5 proxy is ready to use.${NC}"
-echo
