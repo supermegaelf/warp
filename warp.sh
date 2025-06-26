@@ -537,7 +537,9 @@ echo -e "Show information: ${WHITE}warp info${NC}"
 echo -e "View logs: ${WHITE}warp logs${NC}"
 echo -e "Uninstall: ${RED}warp uninstall${NC}"
 echo
-echo -e "${CYAN}Usage Examples:${NC}"
-echo -e "Test with curl: ${WHITE}curl --proxy socks5h://127.0.0.1:40000 https://ipinfo.io${NC}"
-echo -e "Check WARP status: ${WHITE}curl --proxy socks5h://127.0.0.1:40000 https://www.cloudflare.com/cdn-cgi/trace${NC}"
+echo -e "${CYAN}Test with curl:${NC}" 
+echo -e "${NC}curl --proxy socks5h://127.0.0.1:40000 https://ipinfo.io${NC}"
+echo
+echo -e "${CYAN}Check WARP status:${NC}" 
+echo -e "${NC}curl --proxy socks5h://127.0.0.1:40000 https://www.cloudflare.com/cdn-cgi/trace${NC}"
 echo
