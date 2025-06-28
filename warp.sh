@@ -26,8 +26,8 @@ else
    # Interactive menu
    echo -e "${CYAN}Please select an action:${NC}"
    echo
-   echo -e "${GREEN}1.${NC} Install WireProxy WARP"
-   echo -e "${YELLOW}2.${NC} Uninstall WireProxy WARP"
+   echo -e "${GREEN}1.${NC} Install"
+   echo -e "${YELLOW}2.${NC} Uninstall"
    echo -e "${RED}3.${NC} Exit"
    echo
    
@@ -68,7 +68,6 @@ if [ "$ACTION" = "uninstall" ]; then
    fi
 
    # Confirmation
-   echo -e "${YELLOW}This will completely remove WireProxy WARP setup.${NC}"
    echo -e "${YELLOW}Are you sure you want to continue? (y/N)${NC}"
    read -r CONFIRM
 
@@ -89,6 +88,7 @@ if [ "$ACTION" = "uninstall" ]; then
    systemctl disable wireproxy 2>/dev/null && echo "✓ Service disabled" || echo "ℹ Service was not enabled"
 
    # Remove systemd service
+   echo
    echo "Removing systemd service..."
    if [ -f "/etc/systemd/system/wireproxy.service" ]; then
        rm -f /etc/systemd/system/wireproxy.service
@@ -99,6 +99,7 @@ if [ "$ACTION" = "uninstall" ]; then
    fi
 
    # Remove configuration files
+   echo
    echo "Removing configuration files..."
    if [ -f "/etc/wireguard/proxy.conf" ]; then
        rm -f /etc/wireguard/proxy.conf
@@ -114,6 +115,7 @@ if [ "$ACTION" = "uninstall" ]; then
    fi
 
    # Remove WireProxy binary
+   echo
    echo "Removing WireProxy binary..."
    if [ -f "/usr/bin/wireproxy" ]; then
        rm -f /usr/bin/wireproxy
@@ -123,6 +125,7 @@ if [ "$ACTION" = "uninstall" ]; then
    fi
 
    # Remove management script
+   echo
    echo "Removing management script..."
    if [ -f "/usr/bin/warp" ]; then
        rm -f /usr/bin/warp
@@ -132,13 +135,14 @@ if [ "$ACTION" = "uninstall" ]; then
    fi
 
    # Remove temporary files
+   echo
    echo "Cleaning up temporary files..."
    rm -f /tmp/warp-account.conf /tmp/wireproxy.tar.gz
    echo "✓ Temporary files cleaned"
 
    echo
    echo -e "${GREEN}===========================================${NC}"
-   echo -e "${NC}✓ WireProxy WARP uninstalled successfully!${NC}"
+   echo -e "${GREEN}✓${NC} WireProxy WARP uninstalled successfully!"
    echo -e "${GREEN}===========================================${NC}"
    echo
    exit 0
@@ -180,7 +184,7 @@ apt-get install -y curl wget net-tools iproute2 iptables jq tar
 
 echo
 echo -e "${GREEN}--------------------------------${NC}"
-echo -e "${NC}✓ System preparation completed!${NC}"
+echo -e "${GREEN}✓${NC} System preparation completed!"
 echo -e "${GREEN}--------------------------------${NC}"
 echo
 
@@ -191,6 +195,7 @@ echo
 
 # Create directory structure
 echo "Creating directory structure..."
+echo
 mkdir -p /etc/wireguard
 
 # Register WARP account
@@ -207,7 +212,7 @@ echo "WARP account registered successfully!"
 
 echo
 echo -e "${GREEN}-----------------------------------${NC}"
-echo -e "${NC}✓ WARP account creation completed!${NC}"
+echo -e "${GREEN}✓${NC} WARP account creation completed!"
 echo -e "${GREEN}-----------------------------------${NC}"
 echo
 
@@ -230,6 +235,7 @@ esac
 echo "Architecture detected: $ARCH"
 
 # Download and install WireProxy
+echo
 echo "Downloading WireProxy..."
 wget -O /tmp/wireproxy.tar.gz "https://github.com/pufferffish/wireproxy/releases/download/v1.0.9/wireproxy_linux_${ARCH}.tar.gz"
 
@@ -247,7 +253,7 @@ rm -f /tmp/wireproxy.tar.gz
 
 echo
 echo -e "${GREEN}------------------------------------${NC}"
-echo -e "${NC}✓ WireProxy installation completed!${NC}"
+echo -e "${GREEN}✓${NC} WireProxy installation completed!"
 echo -e "${GREEN}------------------------------------${NC}"
 echo
 
@@ -270,6 +276,7 @@ echo "Private Key: ${PRIVATE_KEY:0:20}..."
 echo "IPv6 Address: $ADDRESS_V6"
 
 # Create WireProxy configuration
+echo
 echo "Creating WireProxy configuration..."
 cat > /etc/wireguard/proxy.conf << EOF
 [Interface]
@@ -290,7 +297,7 @@ EOF
 
 echo
 echo -e "${GREEN}------------------------------------${NC}"
-echo -e "${NC}✓ Configuration creation completed!${NC}"
+echo -e "${GREEN}✓${NC} Configuration creation completed!"
 echo -e "${GREEN}------------------------------------${NC}"
 echo
 
@@ -316,7 +323,7 @@ fi
 
 echo
 echo -e "${GREEN}-----------------------------------${NC}"
-echo -e "${NC}✓ Configuration testing completed!${NC}"
+echo -e "${GREEN}✓${NC} Configuration testing completed!"
 echo -e "${GREEN}-----------------------------------${NC}"
 echo
 
@@ -327,6 +334,7 @@ echo
 
 # Create systemd service
 echo "Creating systemd service..."
+echo
 cat > /etc/systemd/system/wireproxy.service << EOF
 [Unit]
 Description=WireProxy for WARP
@@ -354,7 +362,7 @@ sleep 3
 
 echo
 echo -e "${GREEN}--------------------------------------${NC}"
-echo -e "${NC}✓ Systemd service creation completed!${NC}"
+echo -e "${GREEN}✓${NC} Systemd service creation completed!"
 echo -e "${GREEN}--------------------------------------${NC}"
 echo
 
@@ -476,7 +484,7 @@ chmod +x /usr/bin/warp
 
 echo
 echo -e "${GREEN}----------------------------------------${NC}"
-echo -e "${NC}✓ Management script creation completed!${NC}"
+echo -e "${GREEN}✓${NC} Management script creation completed!"
 echo -e "${GREEN}----------------------------------------${NC}"
 echo
 
@@ -490,7 +498,7 @@ echo "Performing final verification..."
 
 # Check if service is running
 if systemctl is-active --quiet wireproxy; then
-   echo -e "${GREEN}✓ WireProxy service is running${NC}"
+   echo -e "${GREEN}✓${NC} WireProxy service is running"
 else
    echo -e "${RED}✗ WireProxy service is not running${NC}"
    echo "Checking logs..."
@@ -500,16 +508,17 @@ fi
 
 # Check if port is listening
 if ss -tlnp | grep -q 40000; then
-   echo -e "${GREEN}✓ SOCKS5 proxy is listening on port 40000${NC}"
+   echo -e "${GREEN}✓${NC} SOCKS5 proxy is listening on port 40000"
 else
    echo -e "${RED}✗ SOCKS5 proxy is not listening${NC}"
    exit 1
 fi
 
 # Test connection
+echo
 echo "Testing WARP connection..."
 if curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 --silent https://www.cloudflare.com/cdn-cgi/trace | grep -q "warp="; then
-   echo -e "${GREEN}✓ WARP connection is working!${NC}"
+   echo -e "${GREEN}✓${NC} WARP connection is working!"
 else
    echo -e "${YELLOW}⚠ WARP connection test inconclusive${NC}"
 fi
@@ -519,12 +528,12 @@ rm -f /tmp/warp-account.conf
 
 echo
 echo -e "${GREEN}--------------------------------${NC}"
-echo -e "${NC}✓ Final verification completed!${NC}"
+echo -e "${GREEN}✓${NC} Final verification completed!"
 echo -e "${GREEN}--------------------------------${NC}"
 echo
 
 echo -e "${GREEN}===============================================${NC}"
-echo -e "${NC}✓ WireProxy WARP setup completed successfully!${NC}"
+echo -e "${GREEN}✓${NC} WireProxy WARP setup completed successfully!"
 echo -e "${GREEN}===============================================${NC}"
 echo
 echo -e "${CYAN}SOCKS5 Proxy Information:${NC}"
