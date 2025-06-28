@@ -27,8 +27,8 @@ else
    echo -e "${CYAN}Please select an action:${NC}"
    echo
    echo -e "${GREEN}1.${NC} Install WireProxy WARP"
-   echo -e "${RED}2.${NC} Uninstall WireProxy WARP"
-   echo -e "${YELLOW}3.${NC} Exit"
+   echo -e "${YELLOW}2.${NC} Uninstall WireProxy WARP"
+   echo -e "${RED}3.${NC} Exit"
    echo
    
    while true; do
