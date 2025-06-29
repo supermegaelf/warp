@@ -12,9 +12,9 @@ NC='\033[0m'
 
 # WireProxy WARP Management Script
 echo
-echo -e "${PURPLE}==========================${NC}"
-echo -e "${NC}WireProxy WARP Management${NC}"
-echo -e "${PURPLE}==========================${NC}"
+echo -e "${PURPLE}=======================${NC}"
+echo -e "${NC}WIREPROXY WARP MANAGER${NC}"
+echo -e "${PURPLE}=======================${NC}"
 echo
 
 # Check if script is run with parameters
