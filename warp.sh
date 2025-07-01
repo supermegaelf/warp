@@ -32,7 +32,8 @@ else
    echo
    
    while true; do
-       read -p "Enter your choice (1-3): " CHOICE
+       echo -ne "${CYAN}Enter your choice (1-3): ${NC}"
+       read CHOICE
        case $CHOICE in
            1)
                ACTION="install"
@@ -84,8 +85,8 @@ if [ "$ACTION" = "uninstall" ]; then
 
    # Stop and disable service
    echo "Stopping WireProxy service..."
-   systemctl stop wireproxy 2>/dev/null && echo "✓ Service stopped" || echo "ℹ Service was not running"
-   systemctl disable wireproxy 2>/dev/null && echo "✓ Service disabled" || echo "ℹ Service was not enabled"
+   systemctl stop wireproxy 2>/dev/null && echo -e "${GREEN}✓${NC} Service stopped" || echo "ℹ Service was not running"
+   systemctl disable wireproxy 2>/dev/null && echo -e "${GREEN}✓${NC} Service disabled" || echo "ℹ Service was not enabled"
 
    # Remove systemd service
    echo
@@ -93,7 +94,7 @@ if [ "$ACTION" = "uninstall" ]; then
    if [ -f "/etc/systemd/system/wireproxy.service" ]; then
        rm -f /etc/systemd/system/wireproxy.service
        systemctl daemon-reload
-       echo "✓ Systemd service removed"
+       echo -e "${GREEN}✓${NC} Systemd service removed"
    else
        echo "ℹ Systemd service file not found"
    fi
@@ -103,7 +104,7 @@ if [ "$ACTION" = "uninstall" ]; then
    echo "Removing configuration files..."
    if [ -f "/etc/wireguard/proxy.conf" ]; then
        rm -f /etc/wireguard/proxy.conf
-       echo "✓ Configuration file removed"
+       echo -e "${GREEN}✓${NC} Configuration file removed"
    else
        echo "ℹ Configuration file not found"
    fi
@@ -111,7 +112,7 @@ if [ "$ACTION" = "uninstall" ]; then
    # Remove directory if empty
    if [ -d "/etc/wireguard" ] && [ -z "$(ls -A /etc/wireguard)" ]; then
        rmdir /etc/wireguard
-       echo "✓ Empty wireguard directory removed"
+       echo -e "${GREEN}✓${NC} Empty wireguard directory removed"
    fi
 
    # Remove WireProxy binary
@@ -119,7 +120,7 @@ if [ "$ACTION" = "uninstall" ]; then
    echo "Removing WireProxy binary..."
    if [ -f "/usr/bin/wireproxy" ]; then
        rm -f /usr/bin/wireproxy
-       echo "✓ WireProxy binary removed"
+       echo -e "${GREEN}✓${NC} WireProxy binary removed"
    else
        echo "ℹ WireProxy binary not found"
    fi
@@ -129,7 +130,7 @@ if [ "$ACTION" = "uninstall" ]; then
    echo "Removing management script..."
    if [ -f "/usr/bin/warp" ]; then
        rm -f /usr/bin/warp
-       echo "✓ Management script removed"
+       echo -e "${GREEN}✓${NC} Management script removed"
    else
        echo "ℹ Management script not found"
    fi
@@ -138,7 +139,7 @@ if [ "$ACTION" = "uninstall" ]; then
    echo
    echo "Cleaning up temporary files..."
    rm -f /tmp/warp-account.conf /tmp/wireproxy.tar.gz
-   echo "✓ Temporary files cleaned"
+   echo -e "${GREEN}✓${NC} Temporary files cleaned"
 
    echo
    echo -e "${GREEN}===========================================${NC}"
@@ -179,8 +180,8 @@ echo
 
 # Update package list and install basic packages
 echo "Updating package list and installing dependencies..."
-apt-get update -y
-apt-get install -y curl wget net-tools iproute2 iptables jq tar
+apt-get update -y >/dev/null 2>&1
+apt-get install -y curl wget net-tools iproute2 iptables jq tar >/dev/null 2>&1
 
 echo
 echo -e "${GREEN}--------------------------------${NC}"
@@ -200,7 +201,7 @@ mkdir -p /etc/wireguard
 
 # Register WARP account
 echo "Registering WARP account..."
-curl -s "https://warp.cloudflare.now.cc/?run=register" > /tmp/warp-account.conf
+curl -s "https://warp.cloudflare.now.cc/?run=register" > /tmp/warp-account.conf 2>/dev/null
 
 # Verify account creation
 if [ ! -s /tmp/warp-account.conf ]; then
@@ -237,7 +238,7 @@ echo "Architecture detected: $ARCH"
 # Download and install WireProxy
 echo
 echo "Downloading WireProxy..."
-wget -O /tmp/wireproxy.tar.gz "https://github.com/pufferffish/wireproxy/releases/download/v1.0.9/wireproxy_linux_${ARCH}.tar.gz"
+wget -O /tmp/wireproxy.tar.gz "https://github.com/pufferffish/wireproxy/releases/download/v1.0.9/wireproxy_linux_${ARCH}.tar.gz" >/dev/null 2>&1
 
 if [ ! -f /tmp/wireproxy.tar.gz ]; then
    echo -e "${RED}Failed to download WireProxy!${NC}"
@@ -245,11 +246,11 @@ if [ ! -f /tmp/wireproxy.tar.gz ]; then
 fi
 
 echo "Installing WireProxy..."
-tar xzf /tmp/wireproxy.tar.gz -C /usr/bin/
-chmod +x /usr/bin/wireproxy
+tar xzf /tmp/wireproxy.tar.gz -C /usr/bin/ >/dev/null 2>&1
+chmod +x /usr/bin/wireproxy >/dev/null 2>&1
 
 # Clean up
-rm -f /tmp/wireproxy.tar.gz
+rm -f /tmp/wireproxy.tar.gz >/dev/null 2>&1
 
 echo
 echo -e "${GREEN}------------------------------------${NC}"
@@ -308,7 +309,7 @@ echo
 
 # Test configuration
 echo "Testing WireProxy configuration..."
-timeout 5 /usr/bin/wireproxy -c /etc/wireguard/proxy.conf > /dev/null 2>&1 &
+timeout 5 /usr/bin/wireproxy -c /etc/wireguard/proxy.conf >/dev/null 2>&1 &
 WIREPROXY_PID=$!
 
 sleep 2
@@ -353,9 +354,9 @@ EOF
 
 # Reload systemd and start service
 echo "Starting WireProxy service..."
-systemctl daemon-reload
-systemctl start wireproxy
-systemctl enable wireproxy
+systemctl daemon-reload >/dev/null 2>&1
+systemctl start wireproxy >/dev/null 2>&1
+systemctl enable wireproxy >/dev/null 2>&1
 
 # Wait for service to start
 sleep 3
@@ -480,7 +481,7 @@ case "$1" in
 esac
 EOF
 
-chmod +x /usr/bin/warp
+chmod +x /usr/bin/warp >/dev/null 2>&1
 
 echo
 echo -e "${GREEN}----------------------------------------${NC}"
@@ -524,7 +525,7 @@ else
 fi
 
 # Clean up temporary files
-rm -f /tmp/warp-account.conf
+rm -f /tmp/warp-account.conf >/dev/null 2>&1
 
 echo
 echo -e "${GREEN}--------------------------------${NC}"
