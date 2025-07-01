@@ -245,6 +245,7 @@ if [ ! -f /tmp/wireproxy.tar.gz ]; then
    exit 1
 fi
 
+echo
 echo "Installing WireProxy..."
 tar xzf /tmp/wireproxy.tar.gz -C /usr/bin/ >/dev/null 2>&1
 chmod +x /usr/bin/wireproxy >/dev/null 2>&1
