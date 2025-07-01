@@ -69,7 +69,7 @@ if [ "$ACTION" = "uninstall" ]; then
    fi
 
    # Confirmation
-   echo -e "${YELLOW}Are you sure you want to continue? (y/N)${NC}"
+   echo -ne "${YELLOW}Are you sure you want to continue? (y/N): ${NC}"
    read -r CONFIRM
 
    if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
@@ -159,7 +159,7 @@ echo
 # Check if already installed
 if [ -f "/usr/bin/wireproxy" ] && [ -f "/etc/systemd/system/wireproxy.service" ]; then
    echo -e "${YELLOW}WireProxy WARP appears to be already installed.${NC}"
-   echo -e "${YELLOW}Do you want to reinstall? (y/N)${NC}"
+   echo -ne "${YELLOW}Do you want to reinstall? (y/N): ${NC}"
    read -r REINSTALL
    
    if [[ ! "$REINSTALL" =~ ^[Yy]$ ]]; then
@@ -425,7 +425,7 @@ case "$1" in
        echo -e "${PURPLE}WireProxy WARP Uninstaller${NC}"
        echo
        echo -e "${YELLOW}This will completely remove WireProxy WARP setup.${NC}"
-       echo -e "${YELLOW}Are you sure you want to continue? (y/N)${NC}"
+       echo -ne "${YELLOW}Are you sure you want to continue? (y/N): ${NC}"
        read -r CONFIRM
 
        if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
