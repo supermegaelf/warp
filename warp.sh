@@ -62,6 +62,7 @@ test_warp_connection() {
     local attempt=1
     
     echo "Testing WARP connection..."
+    echo
     
     while [ $attempt -le $max_attempts ]; do
         echo "Connection test attempt $attempt/$max_attempts..."
@@ -577,6 +578,7 @@ echo
 
 # Final verification with proper waiting
 echo "Performing final verification..."
+echo
 
 # Wait for service to be ready
 if ! wait_for_service "wireproxy" 15; then
