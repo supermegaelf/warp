@@ -10,6 +10,86 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 NC='\033[0m'
 
+# Function to wait for port to be available
+wait_for_port() {
+    local port=$1
+    local max_attempts=$2
+    local attempt=1
+    
+    echo "Waiting for port $port to be available..."
+    
+    while [ $attempt -le $max_attempts ]; do
+        if ss -tlnp | grep -q ":$port "; then
+            echo -e "${GREEN}✓${NC} Port $port is now listening (attempt $attempt/$max_attempts)"
+            return 0
+        fi
+        
+        echo "Attempt $attempt/$max_attempts: Port $port not ready yet, waiting..."
+        sleep 2
+        ((attempt++))
+    done
+    
+    echo -e "${RED}✗${NC} Port $port is not available after $max_attempts attempts"
+    return 1
+}
+
+# Function to wait for service to be fully ready
+wait_for_service() {
+    local service_name=$1
+    local max_attempts=$2
+    local attempt=1
+    
+    echo "Waiting for $service_name to be fully ready..."
+    
+    while [ $attempt -le $max_attempts ]; do
+        if systemctl is-active --quiet "$service_name"; then
+            echo -e "${GREEN}✓${NC} Service $service_name is active (attempt $attempt/$max_attempts)"
+            return 0
+        fi
+        
+        echo "Attempt $attempt/$max_attempts: Service $service_name not ready yet, waiting..."
+        sleep 2
+        ((attempt++))
+    done
+    
+    echo -e "${RED}✗${NC} Service $service_name is not ready after $max_attempts attempts"
+    return 1
+}
+
+# Function to test WARP connection
+test_warp_connection() {
+    local max_attempts=5
+    local attempt=1
+    
+    echo "Testing WARP connection..."
+    
+    while [ $attempt -le $max_attempts ]; do
+        echo "Connection test attempt $attempt/$max_attempts..."
+        
+        # Test with timeout
+        if timeout 15 curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 --silent \
+           https://www.cloudflare.com/cdn-cgi/trace 2>/dev/null | grep -q "warp="; then
+            echo -e "${GREEN}✓${NC} WARP connection test successful!"
+            return 0
+        fi
+        
+        echo "Connection test failed, waiting before retry..."
+        sleep 3
+        ((attempt++))
+    done
+    
+    echo -e "${YELLOW}⚠${NC} WARP connection test failed after $max_attempts attempts"
+    echo "This might be normal during initial setup. You can test later with: warp test"
+    return 1
+}
+
+# Function to show service logs if there's an issue
+show_service_logs() {
+    echo
+    echo -e "${YELLOW}Service logs (last 20 lines):${NC}"
+    journalctl -u wireproxy.service -n 20 --no-pager
+}
+
 # WireProxy WARP Management Script
 echo
 echo -e "${PURPLE}===============${NC}"
@@ -310,14 +390,15 @@ echo
 
 # Test configuration
 echo "Testing WireProxy configuration..."
-timeout 5 /usr/bin/wireproxy -c /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+timeout 10 /usr/bin/wireproxy -c /etc/wireguard/proxy.conf >/dev/null 2>&1 &
 WIREPROXY_PID=$!
 
-sleep 2
+sleep 3
 
 if kill -0 $WIREPROXY_PID 2>/dev/null; then
    echo -e "${GREEN}Configuration test passed!${NC}"
    kill $WIREPROXY_PID 2>/dev/null || true
+   sleep 1
 else
    echo -e "${RED}Configuration test failed!${NC}"
    exit 1
@@ -347,6 +428,7 @@ Documentation=https://github.com/pufferffish/wireproxy
 ExecStart=/usr/bin/wireproxy -c /etc/wireguard/proxy.conf
 RemainAfterExit=yes
 Restart=always
+RestartSec=5
 User=root
 
 [Install]
@@ -358,9 +440,6 @@ echo "Starting WireProxy service..."
 systemctl daemon-reload >/dev/null 2>&1
 systemctl start wireproxy >/dev/null 2>&1
 systemctl enable wireproxy >/dev/null 2>&1
-
-# Wait for service to start
-sleep 3
 
 echo
 echo -e "${GREEN}--------------------------------------${NC}"
@@ -403,12 +482,13 @@ case "$1" in
        ;;
    test)
        echo -e "${YELLOW}Testing WARP connection...${NC}"
-       if curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 https://www.cloudflare.com/cdn-cgi/trace 2>/dev/null | grep -q "warp="; then
+       if timeout 15 curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 https://www.cloudflare.com/cdn-cgi/trace 2>/dev/null | grep -q "warp="; then
            echo -e "${GREEN}WARP connection is working!${NC}"
            echo "Your IP information:"
-           curl --proxy socks5h://127.0.0.1:40000 --silent https://ipinfo.io
+           timeout 15 curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 --silent https://ipinfo.io 2>/dev/null || echo -e "${YELLOW}Could not fetch IP info${NC}"
        else
            echo -e "${RED}WARP connection failed!${NC}"
+           echo "Check service status: systemctl status wireproxy"
        fi
        ;;
    info)
@@ -495,35 +575,26 @@ echo -e "${NC}8. Final verification${NC}"
 echo -e "${GREEN}======================${NC}"
 echo
 
-# Final verification
+# Final verification with proper waiting
 echo "Performing final verification..."
 
-# Check if service is running
-if systemctl is-active --quiet wireproxy; then
-   echo -e "${GREEN}✓${NC} WireProxy service is running"
-else
-   echo -e "${RED}✗ WireProxy service is not running${NC}"
-   echo "Checking logs..."
-   journalctl -u wireproxy.service -n 10 --no-pager
-   exit 1
+# Wait for service to be ready
+if ! wait_for_service "wireproxy" 15; then
+    echo -e "${RED}Service verification failed!${NC}"
+    show_service_logs
+    exit 1
 fi
 
-# Check if port is listening
-if ss -tlnp | grep -q 40000; then
-   echo -e "${GREEN}✓${NC} SOCKS5 proxy is listening on port 40000"
-else
-   echo -e "${RED}✗ SOCKS5 proxy is not listening${NC}"
-   exit 1
+# Wait for port to be available
+if ! wait_for_port "40000" 15; then
+    echo -e "${RED}Port verification failed!${NC}"
+    show_service_logs
+    exit 1
 fi
 
-# Test connection
+# Test WARP connection
 echo
-echo "Testing WARP connection..."
-if curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 --silent https://www.cloudflare.com/cdn-cgi/trace | grep -q "warp="; then
-   echo -e "${GREEN}✓${NC} WARP connection is working!"
-else
-   echo -e "${YELLOW}⚠ WARP connection test inconclusive${NC}"
-fi
+test_warp_connection
 
 # Clean up temporary files
 rm -f /tmp/warp-account.conf >/dev/null 2>&1
