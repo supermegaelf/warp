@@ -541,6 +541,7 @@ case "$1" in
 
        echo
        echo -e "${GREEN}WireProxy WARP uninstalled successfully!${NC}"
+       echo
        ;;
    *)
        echo "WireProxy WARP Management Script"
