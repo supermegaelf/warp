@@ -504,9 +504,11 @@ case "$1" in
        journalctl -u wireproxy.service -f
        ;;
    uninstall)
+       echo
        echo -e "${PURPLE}WireProxy WARP Uninstaller${NC}"
        echo
        echo -e "${YELLOW}This will completely remove WireProxy WARP setup.${NC}"
+       echo
        echo -ne "${YELLOW}Are you sure you want to continue? (y/N): ${NC}"
        read -r CONFIRM
 
