@@ -120,9 +120,9 @@ show_service_logs() {
 
 perform_uninstall() {
     echo
-    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo -e "${WHITE}WireProxy WARP Uninstaller${NC}"
-    echo -e "${PURPLE}=========================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
     echo
 
     # Check if WireProxy is installed
