@@ -201,9 +201,9 @@ perform_uninstall() {
     echo -e "${GREEN}${CHECK}${NC} Temporary files cleaned"
     echo
 
-    echo -e "${PURPLE}===========================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} WireProxy WARP uninstalled successfully!"
-    echo -e "${PURPLE}===========================================${NC}"
+    echo -e "${PURPLE}=====================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Removal complete!"
+    echo -e "${PURPLE}=====================${NC}"
     echo
     exit 0
 }
