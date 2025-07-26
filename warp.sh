@@ -136,11 +136,6 @@ perform_uninstall() {
     echo -e "${GRAY}  ${ARROW}${NC} Disabling service"
     systemctl disable wireproxy 2>/dev/null && echo -e "${GRAY}  ${ARROW}${NC} Service disabled" || echo -e "${GRAY}  ${ARROW}${NC} Service was not enabled"
     echo -e "${GREEN}${CHECK}${NC} Service management completed!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Service management completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
     echo
 
     echo -e "${GREEN}System Cleanup${NC}"
@@ -204,11 +199,6 @@ perform_uninstall() {
     echo -e "${GRAY}  ${ARROW}${NC} Removing temporary files"
     rm -f /tmp/warp-account.conf /tmp/wireproxy.tar.gz
     echo -e "${GREEN}${CHECK}${NC} Temporary files cleaned"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} System cleanup completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────${NC}"
     echo
 
     echo -e "${PURPLE}===========================================${NC}"
@@ -233,11 +223,6 @@ prepare_system() {
     echo -e "${GRAY}  ${ARROW}${NC} Installing required packages"
     apt-get install -y curl wget net-tools iproute2 iptables jq tar >/dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Dependencies installed successfully!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} System preparation completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -265,11 +250,6 @@ setup_warp_account() {
 
     echo -e "${GRAY}  ${ARROW}${NC} Account registration successful"
     echo -e "${GREEN}${CHECK}${NC} WARP account registered successfully!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} WARP account setup completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -309,11 +289,6 @@ install_wireproxy() {
     echo -e "${GRAY}  ${ARROW}${NC} Cleaning up temporary files"
     rm -f /tmp/wireproxy.tar.gz >/dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} WireProxy installation completed!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} WireProxy installation completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -358,11 +333,6 @@ BindAddress = 127.0.0.1:40000
 EOF
 
     echo -e "${GREEN}${CHECK}${NC} Configuration file created successfully!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Configuration creation completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -389,10 +359,6 @@ test_configuration() {
         exit 1
     fi
 
-    echo
-    echo -e "${GREEN}────────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Configuration testing completed successfully!"
-    echo -e "${GREEN}────────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -427,11 +393,6 @@ EOF
     echo -e "${GRAY}  ${ARROW}${NC} Enabling service for auto-start"
     systemctl enable wireproxy >/dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Systemd service setup completed!"
-
-    echo
-    echo -e "${GREEN}────────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Systemd service setup completed successfully!"
-    echo -e "${GREEN}────────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -556,11 +517,6 @@ EOF
     echo -e "${GRAY}  ${ARROW}${NC} Setting script permissions"
     chmod +x /usr/bin/warp >/dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Management script created successfully!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Management script creation completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────────────${NC}"
     echo
 }
 
@@ -594,18 +550,13 @@ perform_final_verification() {
     echo -e "${GRAY}  ${ARROW}${NC} Cleaning up temporary files"
     rm -f /tmp/warp-account.conf >/dev/null 2>&1
     echo -e "${GREEN}${CHECK}${NC} Final verification completed successfully!"
-
-    echo
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Final verification completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
     echo
 }
 
 display_completion_info() {
-    echo -e "${PURPLE}===============================================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} WireProxy WARP setup completed successfully!"
-    echo -e "${PURPLE}===============================================${NC}"
+    echo -e "${PURPLE}===================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} SETUP COMPLETED!"
+    echo -e "${PURPLE}===================${NC}"
     echo
     echo -e "${CYAN}Management Commands:${NC}"
     echo -e "${WHITE}• Check status: warp status${NC}"
@@ -676,6 +627,7 @@ perform_installation() {
     # Check if already installed
     if [ -f "/usr/bin/wireproxy" ] && [ -f "/etc/systemd/system/wireproxy.service" ]; then
         echo -e "${YELLOW}${WARNING}${NC} WireProxy WARP appears to be already installed."
+        echo
         echo -ne "${YELLOW}Do you want to reinstall? (y/N): ${NC}"
         read -r REINSTALL
         
@@ -686,6 +638,7 @@ perform_installation() {
         fi
         
         echo -e "${YELLOW}Proceeding with reinstallation...${NC}"
+        echo
     fi
 
     set -e
