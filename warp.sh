@@ -612,7 +612,7 @@ display_completion_info() {
     echo -e "${WHITE}• Test connection: warp test${NC}"
     echo -e "${WHITE}• Show information: warp info${NC}"
     echo -e "${WHITE}• View logs: warp logs${NC}"
-    echo -e "${RED}• Uninstall: warp uninstall${NC}"
+    echo -e "${WHITE}• Uninstall: warp uninstall${NC}"
     echo
     echo -e "${CYAN}Test Commands:${NC}"
     echo -e "${WHITE}• curl --proxy socks5h://127.0.0.1:40000 https://ipinfo.io${NC}"
