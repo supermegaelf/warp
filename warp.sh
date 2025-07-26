@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#==============================
+#========================
 # WIREPROXY WARP MANAGER
-#==============================
+#========================
 
 # Color constants
 readonly RED='\033[0;31m'
@@ -32,20 +32,15 @@ wait_for_port() {
     local max_attempts=$2
     local attempt=1
     
-    echo -e "${CYAN}${INFO}${NC} Waiting for port $port to be available..."
-    
     while [ $attempt -le $max_attempts ]; do
         if ss -tlnp | grep -q ":$port "; then
-            echo -e "${GREEN}${CHECK}${NC} Port $port is now listening (attempt $attempt/$max_attempts)"
             return 0
         fi
         
-        echo -e "${GRAY}  ${ARROW}${NC} Attempt $attempt/$max_attempts: Port $port not ready yet, waiting..."
         sleep 2
         ((attempt++))
     done
     
-    echo -e "${RED}${CROSS}${NC} Port $port is not available after $max_attempts attempts"
     return 1
 }
 
@@ -55,45 +50,34 @@ wait_for_service() {
     local max_attempts=$2
     local attempt=1
     
-    echo -e "${CYAN}${INFO}${NC} Waiting for $service_name to be fully ready..."
-    
     while [ $attempt -le $max_attempts ]; do
         if systemctl is-active --quiet "$service_name"; then
-            echo -e "${GREEN}${CHECK}${NC} Service $service_name is active (attempt $attempt/$max_attempts)"
             return 0
         fi
         
-        echo -e "${GRAY}  ${ARROW}${NC} Attempt $attempt/$max_attempts: Service $service_name not ready yet, waiting..."
         sleep 2
         ((attempt++))
     done
     
-    echo -e "${RED}${CROSS}${NC} Service $service_name is not ready after $max_attempts attempts"
     return 1
 }
 
-#=========================
+#===========================
 # CONNECTION TEST FUNCTIONS
-#=========================
+#===========================
 
 # Test WARP connection
 test_warp_connection() {
     local max_attempts=5
     local attempt=1
     
-    echo -e "${CYAN}${INFO}${NC} Testing WARP connection..."
-    
     while [ $attempt -le $max_attempts ]; do
-        echo -e "${GRAY}  ${ARROW}${NC} Connection test attempt $attempt/$max_attempts..."
-        
         # Test with timeout
         if timeout 15 curl --proxy socks5h://127.0.0.1:40000 --connect-timeout 10 --silent \
            https://www.cloudflare.com/cdn-cgi/trace 2>/dev/null | grep -q "warp="; then
-            echo -e "${GREEN}${CHECK}${NC} WARP connection test successful!"
             return 0
         fi
         
-        echo -e "${GRAY}  ${ARROW}${NC} Connection test failed, waiting before retry..."
         sleep 3
         ((attempt++))
     done
@@ -103,9 +87,9 @@ test_warp_connection() {
     return 1
 }
 
-#====================
+#===================
 # LOGGING FUNCTIONS
-#====================
+#===================
 
 # Show service logs if there's an issue
 show_service_logs() {
@@ -141,6 +125,7 @@ perform_uninstall() {
         exit 0
     fi
 
+    echo
     echo -e "${GREEN}Service Management${NC}"
     echo -e "${GREEN}==================${NC}"
     echo
@@ -153,9 +138,9 @@ perform_uninstall() {
     echo -e "${GREEN}${CHECK}${NC} Service management completed!"
 
     echo
-    echo -e "${GREEN}─────────────────────────────────────────${NC}"
+    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
     echo -e "${GREEN}${CHECK}${NC} Service management completed successfully!"
-    echo -e "${GREEN}─────────────────────────────────────────${NC}"
+    echo -e "${GREEN}─────────────────────────────────────────────${NC}"
     echo
 
     echo -e "${GREEN}System Cleanup${NC}"
@@ -225,7 +210,6 @@ perform_uninstall() {
     echo -e "${GREEN}${CHECK}${NC} System cleanup completed successfully!"
     echo -e "${GREEN}─────────────────────────────────────────${NC}"
     echo
-    echo
 
     echo -e "${PURPLE}===========================================${NC}"
     echo -e "${GREEN}${CHECK}${NC} WireProxy WARP uninstalled successfully!"
@@ -234,9 +218,9 @@ perform_uninstall() {
     exit 0
 }
 
-#====================
+#========================
 # INSTALLATION FUNCTIONS
-#====================
+#========================
 
 prepare_system() {
     echo -e "${GREEN}System Preparation${NC}"
@@ -588,32 +572,28 @@ perform_final_verification() {
     echo -e "${CYAN}${INFO}${NC} Performing final verification..."
 
     # Wait for service to be ready
+    echo -e "${GRAY}  ${ARROW}${NC} Waiting for wireproxy service to be ready"
     if ! wait_for_service "wireproxy" 15; then
         echo -e "${RED}${CROSS}${NC} Service verification failed!"
         show_service_logs
         exit 1
     fi
 
-    echo
-
     # Wait for port to be available
+    echo -e "${GRAY}  ${ARROW}${NC} Waiting for port 40000 to be available"
     if ! wait_for_port "40000" 15; then
         echo -e "${RED}${CROSS}${NC} Port verification failed!"
         show_service_logs
         exit 1
     fi
 
-    echo
-
     # Test WARP connection
+    echo -e "${GRAY}  ${ARROW}${NC} Testing WARP connection"
     test_warp_connection
 
-    echo
-
-    echo -e "${CYAN}${INFO}${NC} Cleaning up temporary files..."
-    echo -e "${GRAY}  ${ARROW}${NC} Removing temporary account file"
+    echo -e "${GRAY}  ${ARROW}${NC} Cleaning up temporary files"
     rm -f /tmp/warp-account.conf >/dev/null 2>&1
-    echo -e "${GREEN}${CHECK}${NC} Cleanup completed!"
+    echo -e "${GREEN}${CHECK}${NC} Final verification completed successfully!"
 
     echo
     echo -e "${GREEN}─────────────────────────────────────────────${NC}"
@@ -640,9 +620,9 @@ display_completion_info() {
     echo
 }
 
-#====================
+#================
 # MENU FUNCTIONS
-#====================
+#================
 
 show_main_menu() {
     echo
@@ -682,9 +662,9 @@ handle_user_choice() {
     done
 }
 
-#====================
+#================
 # MAIN FUNCTIONS
-#====================
+#================
 
 perform_installation() {
     echo
