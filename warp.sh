@@ -554,9 +554,9 @@ perform_final_verification() {
 }
 
 display_completion_info() {
-    echo -e "${PURPLE}===================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} SETUP COMPLETED!"
-    echo -e "${PURPLE}===================${NC}"
+    echo -e "${PURPLE}==================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Setup complete!"
+    echo -e "${PURPLE}==================${NC}"
     echo
     echo -e "${CYAN}Management Commands:${NC}"
     echo -e "${WHITE}• Check status: warp status${NC}"
