@@ -104,9 +104,9 @@ show_service_logs() {
 
 perform_uninstall() {
     echo
-    echo -e "${PURPLE}===========================${NC}"
-    echo -e "${WHITE}WireProxy WARP Uninstaller${NC}"
-    echo -e "${PURPLE}===========================${NC}"
+    echo -e "${PURPLE}====================${NC}"
+    echo -e "${WHITE}WARP Uninstallation${NC}"
+    echo -e "${PURPLE}====================${NC}"
     echo
 
     # Check if WireProxy is installed
@@ -201,9 +201,9 @@ perform_uninstall() {
     echo -e "${GREEN}${CHECK}${NC} Temporary files cleaned"
     echo
 
-    echo -e "${PURPLE}=====================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Removal complete!"
-    echo -e "${PURPLE}=====================${NC}"
+    echo -e "${PURPLE}===========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Uninstallation complete!"
+    echo -e "${PURPLE}===========================${NC}"
     echo
     exit 0
 }
@@ -554,9 +554,9 @@ perform_final_verification() {
 }
 
 display_completion_info() {
-    echo -e "${PURPLE}==================${NC}"
-    echo -e "${GREEN}${CHECK}${NC} Setup complete!"
-    echo -e "${PURPLE}==================${NC}"
+    echo -e "${PURPLE}==========================${NC}"
+    echo -e "${GREEN}${CHECK}${NC} Installation complete!"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     echo -e "${CYAN}Management Commands:${NC}"
     echo -e "${WHITE}• Check status: warp status${NC}"
@@ -577,9 +577,9 @@ display_completion_info() {
 
 show_main_menu() {
     echo
-    echo -e "${PURPLE}===============${NC}"
-    echo -e "${WHITE}WIREPROXY WARP${NC}"
-    echo -e "${PURPLE}===============${NC}"
+    echo -e "${PURPLE}=======================${NC}"
+    echo -e "${WHITE}WIREPROXY WARP MANAGER${NC}"
+    echo -e "${PURPLE}=======================${NC}"
     echo
     echo -e "${CYAN}Please select an action:${NC}"
     echo
@@ -619,9 +619,9 @@ handle_user_choice() {
 
 perform_installation() {
     echo
-    echo -e "${PURPLE}=====================${NC}"
-    echo -e "${WHITE}WireProxy WARP Setup${NC}"
-    echo -e "${PURPLE}=====================${NC}"
+    echo -e "${PURPLE}==================${NC}"
+    echo -e "${WHITE}WARP Installation${NC}"
+    echo -e "${PURPLE}==================${NC}"
     echo
 
     # Check if already installed
