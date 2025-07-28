@@ -554,7 +554,7 @@ perform_final_verification() {
 }
 
 display_completion_info() {
-    echo -e "${PURPLE}==========================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
     echo -e "${PURPLE}=========================${NC}"
     echo
