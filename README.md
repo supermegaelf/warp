@@ -4,16 +4,21 @@
 bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
 ```
 
-Добавить в конце секции `RULES`:
+Добавить в конце секции `OUTBOUNDS`:
 
 ```
-      {
-        "outboundTag": "WARP",
-        "domain": [
-          "full:*.vsco.co"
-        ],
-        "type": "field"
+    {
+      "tag": "warp-out",
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "port": 40000,
+            "address": "127.0.0.1"
+          }
+        ]
       }
+    }
 ```
 
 > [!NOTE]
@@ -23,19 +28,15 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
 "geosite:meta"
 ```
 
-Добавить в конце секции `OUTBOUND`:
+Добавить в секцию `RULES` (после `BLOCK`):
 
 ```
-    {
-      "tag": "WARP",
-      "protocol": "socks",
-      "settings": {
-        "servers": [
-          {
-            "address": "127.0.0.1",
-            "port": 40000
-          }
-        ]
-      }
-    }
+      {
+        "type": "field",
+        "domain": [
+          "tiktok.com",
+          "domain:tiktok.com"
+        ],
+        "outboundTag": "warp-out"
+      },
 ```
