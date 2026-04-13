@@ -27,6 +27,7 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
 ```
 "domain:tiktok.com"
 "domain:gemini.google.com"
+"domain:googleapis.com"
 ```
 
 Добавить в секцию `RULES` (после `BLOCK`):
@@ -36,7 +37,8 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
         "type": "field",
         "domain": [
           "domain:tiktok.com",
-          "domain:gemini.google.com"
+          "domain:gemini.google.com",
+          "domain:googleapis.com"
         ],
         "outboundTag": "warp-out"
       },
