@@ -9,14 +9,14 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
 ```
     {
       "tag": "warp-out",
-      "protocol": "socks",
+      "protocol": "freedom",
       "settings": {
-        "servers": [
-          {
-            "port": 40000,
-            "address": "127.0.0.1"
-          }
-        ]
+        "domainStrategy": "UseIP"
+      },
+      "streamSettings": {
+        "sockopt": {
+          "interface": "warp"
+        }
       }
     }
 ```
@@ -25,7 +25,8 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
 > Добавить при необходимости:
 
 ```
-"tiktok.com"
+"domain:tiktok.com"
+"domain:gemini.google.com"
 ```
 
 Добавить в секцию `RULES` (после `BLOCK`):
@@ -34,7 +35,8 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
       {
         "type": "field",
         "domain": [
-          "tiktok.com"
+          "domain:tiktok.com",
+          "domain:gemini.google.com"
         ],
         "outboundTag": "warp-out"
       },
