@@ -25,7 +25,7 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
 > Добавить при необходимости:
 
 ```
-"geosite:meta"
+"tiktok.com"
 ```
 
 Добавить в секцию `RULES` (после `BLOCK`):
@@ -34,8 +34,7 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
       {
         "type": "field",
         "domain": [
-          "tiktok.com",
-          "domain:tiktok.com"
+          "tiktok.com"
         ],
         "outboundTag": "warp-out"
       },
