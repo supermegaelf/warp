@@ -368,9 +368,9 @@ is_installed() {
 
 show_status() {
     echo
-    echo -e "${PURPLE}==================${NC}"
+    echo -e "${PURPLE}============${NC}"
     echo -e "${WHITE}WARP Status${NC}"
-    echo -e "${PURPLE}==================${NC}"
+    echo -e "${PURPLE}============${NC}"
     echo
 
     if systemctl is-active wg-quick@warp &>/dev/null; then
