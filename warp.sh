@@ -358,6 +358,59 @@ display_completion_info() {
     echo
 }
 
+is_installed() {
+    [ -f "/etc/wireguard/warp.conf" ]
+}
+
+#================
+# STATUS FUNCTION
+#================
+
+show_status() {
+    echo
+    echo -e "${PURPLE}==================${NC}"
+    echo -e "${WHITE}WARP Status${NC}"
+    echo -e "${PURPLE}==================${NC}"
+    echo
+
+    if systemctl is-active wg-quick@warp &>/dev/null; then
+        ok "Service is running"
+    else
+        warn "Service is not running"
+    fi
+
+    echo
+    info "Interface details..."
+    wg show warp 2>/dev/null || echo -e "${GRAY}  No interface data${NC}"
+
+    echo
+    info "Checking IP via WARP..."
+    local ip_info
+    ip_info=$(curl -s --max-time 10 --interface warp https://ipinfo.io 2>/dev/null)
+    if [ -n "$ip_info" ]; then
+        local ip country city
+        ip=$(echo "$ip_info" | grep '"ip"' | cut -d'"' -f4)
+        country=$(echo "$ip_info" | grep '"country"' | cut -d'"' -f4)
+        city=$(echo "$ip_info" | grep '"city"' | cut -d'"' -f4)
+        echo -e "${GRAY}  ${ARROW}${NC} IP: ${WHITE}$ip${NC} — $city, $country"
+    else
+        warn "Could not reach ipinfo.io via WARP"
+    fi
+
+    echo
+    info "Checking WARP status via Cloudflare..."
+    local warp_status
+    warp_status=$(curl -s --max-time 10 --interface warp https://www.cloudflare.com/cdn-cgi/trace 2>/dev/null | grep "warp=" | cut -d= -f2)
+    if [[ "$warp_status" == "plus" ]]; then
+        ok "WARP+ is active"
+    elif [[ "$warp_status" == "on" ]]; then
+        ok "WARP is active"
+    else
+        warn "Could not confirm WARP status"
+    fi
+    echo
+}
+
 #================
 # MENU FUNCTIONS
 #================
@@ -370,34 +423,60 @@ show_main_menu() {
     echo
     echo -e "${CYAN}Please select an action:${NC}"
     echo
-    echo -e "${GREEN}1.${NC} Install"
-    echo -e "${YELLOW}2.${NC} Uninstall"
-    echo -e "${RED}3.${NC} Exit"
+
+    if is_installed; then
+        echo -e "${GREEN}1.${NC} Status"
+        echo -e "${YELLOW}2.${NC} Uninstall"
+        echo -e "${RED}3.${NC} Exit"
+    else
+        echo -e "${GREEN}1.${NC} Install"
+        echo -e "${RED}2.${NC} Exit"
+    fi
     echo
 }
 
 handle_user_choice() {
-    while true; do
-        echo -ne "${CYAN}Enter your choice (1-3): ${NC}"
-        read CHOICE
-        case $CHOICE in
-            1)
-                ACTION="install"
-                break
-                ;;
-            2)
-                ACTION="uninstall"
-                break
-                ;;
-            3)
-                echo -e "${CYAN}Goodbye!${NC}"
-                exit 0
-                ;;
-            *)
-                echo -e "${RED}${CROSS}${NC} Invalid choice. Please enter 1, 2, or 3."
-                ;;
-        esac
-    done
+    if is_installed; then
+        while true; do
+            echo -ne "${CYAN}Enter your choice (1-3): ${NC}"
+            read CHOICE
+            case $CHOICE in
+                1)
+                    ACTION="status"
+                    break
+                    ;;
+                2)
+                    ACTION="uninstall"
+                    break
+                    ;;
+                3)
+                    echo -e "${CYAN}Goodbye!${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}${CROSS}${NC} Invalid choice. Please enter 1, 2, or 3."
+                    ;;
+            esac
+        done
+    else
+        while true; do
+            echo -ne "${CYAN}Enter your choice (1-2): ${NC}"
+            read CHOICE
+            case $CHOICE in
+                1)
+                    ACTION="install"
+                    break
+                    ;;
+                2)
+                    echo -e "${CYAN}Goodbye!${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}${CROSS}${NC} Invalid choice. Please enter 1 or 2."
+                    ;;
+            esac
+        done
+    fi
 }
 
 #================
@@ -453,6 +532,8 @@ main() {
         ACTION="uninstall"
     elif [ "$1" = "install" ] || [ "$1" = "--install" ] || [ "$1" = "-i" ]; then
         ACTION="install"
+    elif [ "$1" = "status" ] || [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
+        ACTION="status"
     else
         show_main_menu
         handle_user_choice
@@ -460,6 +541,8 @@ main() {
 
     if [ "$ACTION" = "uninstall" ]; then
         perform_uninstall
+    elif [ "$ACTION" = "status" ]; then
+        show_status
     else
         perform_installation
     fi
