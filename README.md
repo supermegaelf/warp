@@ -37,8 +37,11 @@ bash <(curl -s https://raw.githubusercontent.com/supermegaelf/warp/main/warp.sh)
         "type": "field",
         "domain": [
           "domain:tiktok.com",
-          "domain:gemini.google.com",
-          "domain:googleapis.com"
+          "domain:googleapis.com",
+          "domain:withgoogle.com",
+          "domain:elevenlabs.io",
+          "domain:labs.google",
+          "geosite:google-deepmind"
         ],
         "outboundTag": "warp-out"
       },
