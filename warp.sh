@@ -14,6 +14,8 @@ readonly WHITE='\033[1;37m'
 readonly GRAY='\033[0;90m'
 readonly NC='\033[0m'
 
+readonly LOG_FILE="/root/warp-output.txt"
+
 readonly CHECK="✓"
 readonly CROSS="✗"
 readonly WARNING="!"
@@ -22,6 +24,9 @@ readonly ARROW="→"
 
 error_exit() {
     echo -e "${RED}${CROSS}${NC} $1"
+    if [ -f "$LOG_FILE" ]; then
+        echo -e "${GRAY}  ${ARROW}${NC} Details saved to ${WHITE}$LOG_FILE${NC}"
+    fi
     exit 1
 }
 
@@ -47,6 +52,10 @@ perform_uninstall() {
     echo -e "${WHITE}WARP Uninstallation${NC}"
     echo -e "${PURPLE}====================${NC}"
     echo
+
+    if [[ $EUID -ne 0 ]]; then
+        error_exit "This script must be run as root"
+    fi
 
     if [ ! -f "/usr/local/bin/wgcf" ] && [ ! -f "/etc/wireguard/warp.conf" ]; then
         warn "WARP is not installed on this system."
@@ -78,6 +87,8 @@ perform_uninstall() {
     rm -f /usr/local/bin/wgcf
     echo -e "${GRAY}  ${ARROW}${NC} Removing account files"
     rm -f ~/wgcf-account.toml ~/wgcf-profile.conf
+    echo -e "${GRAY}  ${ARROW}${NC} Removing log file"
+    rm -f "$LOG_FILE"
     ok "Configuration files removed"
 
     echo
@@ -107,11 +118,11 @@ prepare_system() {
 
     info "Updating package list and installing dependencies..."
     echo -e "${GRAY}  ${ARROW}${NC} Updating package repositories"
-    apt-get update -qq >/dev/null 2>&1 || error_exit "Failed to update package list"
+    apt-get update -qq >> "$LOG_FILE" 2>&1 || error_exit "Failed to update package list"
     
     echo -e "${GRAY}  ${ARROW}${NC} Installing WireGuard and tools"
     apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-        wireguard wireguard-tools curl wget >/dev/null 2>&1 || error_exit "Failed to install WireGuard"
+        wireguard wireguard-tools curl wget >> "$LOG_FILE" 2>&1 || error_exit "Failed to install WireGuard"
     
     ok "Dependencies installed successfully"
     echo
@@ -199,21 +210,21 @@ register_warp() {
         info "Registering new WARP account..."
         
         echo -e "${GRAY}  ${ARROW}${NC} Checking wgcf binary"
-        if ! wgcf --help &>/dev/null; then
+        if ! wgcf --help >> "$LOG_FILE" 2>&1; then
             chmod +x /usr/local/bin/wgcf
         fi
         
         echo -e "${GRAY}  ${ARROW}${NC} Contacting Cloudflare WARP API"
-        output=$(timeout 60 bash -c 'yes | wgcf register' 2>&1)
+        output=$(timeout 60 env WGCF_ACCEPT_TOS=yes wgcf register 2>&1)
         ret=$?
+        echo "$output" >> "$LOG_FILE"
         
         if [[ $ret -ne 0 ]]; then
-            warn "Registration exited with code $ret"
-            if [[ "$output" == *"500 Internal Server Error"* ]]; then
-                echo -e "${GRAY}  ${ARROW}${NC} Cloudflare 500 error detected, trying alternative method"
+            if [[ "$output" == *"429 Too Many Requests"* ]]; then
+                echo -e "${GRAY}  ${ARROW}${NC} Cloudflare rate limit (429)"
+                error_exit "Cloudflare rate limit, try again later"
             fi
-            echo | wgcf register &>/dev/null || true
-            sleep 2
+            error_exit "Registration failed (exit code $ret)"
         fi
         
         if [ ! -f wgcf-account.toml ]; then
@@ -226,7 +237,7 @@ register_warp() {
     echo
     info "Generating WARP configuration..."
     echo -e "${GRAY}  ${ARROW}${NC} Running wgcf generate"
-    wgcf generate &>/dev/null || error_exit "Failed to generate config"
+    wgcf generate >> "$LOG_FILE" 2>&1 || error_exit "Failed to generate config"
     ok "Configuration generated successfully"
     echo
 }
@@ -300,6 +311,7 @@ start_warp() {
     echo
     info "Verifying WARP connection..."
     
+    local handshake_ok=false
     echo -e "${GRAY}  ${ARROW}${NC} Waiting for WireGuard handshake"
     for i in {1..10}; do
         if wg show warp &>/dev/null; then
@@ -307,11 +319,16 @@ start_warp() {
             if [[ "$handshake" == *"second"* || "$handshake" == *"minute"* ]]; then
                 echo -e "${GRAY}  ${ARROW}${NC} Handshake received: $handshake"
                 ok "WARP connection established"
+                handshake_ok=true
                 break
             fi
         fi
         sleep 1
     done
+
+    if [[ "$handshake_ok" != true ]]; then
+        warn "Handshake not received within timeout"
+    fi
 
     echo
     info "Testing connection to Cloudflare..."
@@ -372,6 +389,10 @@ show_status() {
     echo -e "${WHITE}WARP Status${NC}"
     echo -e "${PURPLE}============${NC}"
     echo
+
+    if [[ $EUID -ne 0 ]]; then
+        error_exit "This script must be run as root"
+    fi
 
     if systemctl is-active wg-quick@warp &>/dev/null; then
         ok "Service is running"
@@ -512,6 +533,8 @@ perform_installation() {
         ok "Existing installation stopped"
         echo
     fi
+
+    echo "WARP install log — $(date)" > "$LOG_FILE"
 
     prepare_system
     setup_temp_dns
