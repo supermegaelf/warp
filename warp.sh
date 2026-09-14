@@ -24,9 +24,6 @@ readonly ARROW="→"
 
 error_exit() {
     echo -e "${RED}${CROSS}${NC} $1"
-    if [ -f "$LOG_FILE" ]; then
-        echo -e "${GRAY}  ${ARROW}${NC} Details saved to ${WHITE}$LOG_FILE${NC}"
-    fi
     exit 1
 }
 
