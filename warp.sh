@@ -217,12 +217,12 @@ register_warp() {
         info "Registering new WARP account..."
         
         echo -e "${GRAY}  ${ARROW}${NC} Checking wgcf binary"
-        if ! wgcf --help >> "$LOG_FILE" 2>&1; then
+        if ! wgcf --help &>/dev/null; then
             chmod +x /usr/local/bin/wgcf
         fi
         
         echo -e "${GRAY}  ${ARROW}${NC} Contacting Cloudflare WARP API"
-        output=$(timeout 60 env WGCF_ACCEPT_TOS=yes wgcf register 2>&1)
+        output=$(timeout 60 bash -c 'yes | wgcf register' 2>&1)
         ret=$?
         echo "$output" >> "$LOG_FILE"
         
