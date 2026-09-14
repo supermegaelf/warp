@@ -24,6 +24,11 @@ readonly ARROW="→"
 
 error_exit() {
     echo -e "${RED}${CROSS}${NC} $1"
+    if [ -f "$LOG_FILE" ]; then
+        echo
+        echo -e "${WHITE}View log for details:${NC}"
+        echo -e "${WHITE}cat $LOG_FILE${NC}"
+    fi
     exit 1
 }
 
@@ -218,7 +223,6 @@ register_warp() {
         
         if [[ $ret -ne 0 ]]; then
             if [[ "$output" == *"429 Too Many Requests"* ]]; then
-                echo -e "${GRAY}  ${ARROW}${NC} Cloudflare rate limit (429)"
                 error_exit "Cloudflare rate limit, try again later"
             fi
             error_exit "Registration failed (exit code $ret)"
