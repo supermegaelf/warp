@@ -24,11 +24,7 @@ readonly ARROW="→"
 
 error_exit() {
     echo -e "${RED}${CROSS}${NC} $1"
-    if [ -f "$LOG_FILE" ]; then
-        echo
-        echo -e "${WHITE}View log for details:${NC}"
-        echo -e "${WHITE}cat $LOG_FILE${NC}"
-    fi
+    SHOW_LOG_HINT=1
     exit 1
 }
 
@@ -156,7 +152,16 @@ restore_dns() {
     fi
 }
 
-trap restore_dns EXIT
+cleanup_on_exit() {
+    restore_dns
+    if [ -n "$SHOW_LOG_HINT" ] && [ -f "$LOG_FILE" ]; then
+        echo -e "${WHITE}View log for details:${NC}"
+        echo -e "${WHITE}cat $LOG_FILE${NC}"
+        echo
+    fi
+}
+
+trap cleanup_on_exit EXIT
 
 install_wgcf() {
     echo -e "${GREEN}wgcf Installation${NC}"
