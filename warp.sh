@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#========================
+#===================
 # WARP-WGCF MANAGER
-#========================
+#===================
 
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -362,9 +362,9 @@ start_warp() {
 }
 
 display_completion_info() {
-    echo -e "${PURPLE}================================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo -e "${GREEN}${CHECK}${NC} Installation complete!"
-    echo -e "${PURPLE}================================${NC}"
+    echo -e "${PURPLE}=========================${NC}"
     echo
     echo -e "${CYAN}WARP Interface:${NC} ${WHITE}warp${NC}"
     echo
@@ -385,9 +385,9 @@ is_installed() {
     [ -f "/etc/wireguard/warp.conf" ]
 }
 
-#================
+#=================
 # STATUS FUNCTION
-#================
+#=================
 
 show_status() {
     echo
